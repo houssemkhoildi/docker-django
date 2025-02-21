@@ -1,0 +1,51 @@
+version: '2'
+services:
+  db_pfe:
+    image: postgres:14
+    user: root
+    environment:
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=Pfe2023
+      - POSTGRES_DB=postgres
+    restart: always             # run as a service
+    volumes:
+        - ./postgresql:/var/lib/postgresql/data
+    networks:
+      network:
+        ipv4_address: 10.7.0.2
+
+  pgadmin_pfe:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: tayebjebeniani@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: Pfe2023
+    ports:
+      - "5050:80"
+    networks:
+      network:
+        ipv4_address: 10.7.0.3
+
+
+  web_pfe:
+    build: .
+    command: python3 manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db_pfe
+    networks:
+      network:
+        ipv4_address: 10.7.0.4
+      
+networks:
+  network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.7.0.0/16
+          gateway: 10.7.0.1 
+    
